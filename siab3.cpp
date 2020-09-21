@@ -291,7 +291,7 @@ struct subcube<0>
 template<unsigned N>
 struct subcubeHash
 {
-	std::size_t operator()(const subcube<N> sc)
+	std::size_t operator()(const subcube<N> sc) const
 	{
 		std::size_t hash = 0;
 		for (auto [ptype,compNum] : sc.verts)
