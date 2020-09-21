@@ -323,6 +323,16 @@ std::ostream& operator<<(std::ostream& stream, const subcube<N>& sc)
 	return stream;
 }
 
+// Need a forward declaration for another forward declaration...
+template<unsigned N>
+struct subcubeClass;
+
+template<unsigned N>
+struct subcubeClassHash
+{
+	std::size_t operator()(const subcubeClass<N> sc) const;
+};
+
 // Holds a group of subcubes that are symmetrically identical.
 
 template<unsigned N>
@@ -407,6 +417,13 @@ struct subcubeClass<0>
 		classes = { subcubeClass(1), subcubeClass(0) };
 	}
 };
+
+template<unsigned N>
+std::size_t subcubeClassHash<N>::operator()(const subcubeClass<N> sc) const
+{
+	// Classes can just be identified by their canonical form.
+	return subcubeHash<N>()(sc.canonicalForm);
+}
 
 int main()
 {
