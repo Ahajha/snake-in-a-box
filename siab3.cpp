@@ -303,20 +303,20 @@ struct subcubeHash
 };
 
 template<unsigned N>
-std::ostream& operator<<(std::ostream& stream, const subcube<N> sc)
+std::ostream& operator<<(std::ostream& stream, const subcube<N>& sc)
 {
 	for (auto [ptype,compNum] : sc.verts)
 	{
 		if (ptype == empty)
 		{
-			std::cout << "_ ";
+			stream << "_ ";
 		}
 		else
 		{
-			std::cout << (int)compNum << ' ';
+			stream << (int)compNum << ' ';
 		}
 	}
-	std::cout << "| " << sc.numComponents << " components, "
+	stream << "| " << sc.numComponents << " components, "
 		<< sc.numVertices << " vertices";
 	
 	return stream;
