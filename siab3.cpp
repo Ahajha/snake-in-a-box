@@ -225,6 +225,8 @@ struct subcube
 		numVertices = sub1.numVertices + sub2.numVertices;
 	}
 	
+	subcube() : numVertices(0) {}
+	
 	subcube(const subcube& other, const permutationSet<N>::permutation& perm)
 	{
 		for (unsigned i = 0; i < verts.size(); i++)
@@ -269,6 +271,8 @@ struct subcube<0>
 	std::array<std::pair<pointType,componentNumType>,1> verts;
 	unsigned numComponents;
 	unsigned numVertices;
+	
+	subcube() : numVertices(0) {}
 	
 	subcube(unsigned v)
 	{
@@ -430,4 +434,16 @@ int main()
 	permutationSet<MAX_DIM>::init();
 	
 	subcubeClass<MAX_DIM>::init();
+	
+	subcube<MAX_DIM> largest;
+	for (const auto& scc : subcubeClass<MAX_DIM>::classes)
+	{
+		if (scc.canonicalForm.numComponents == 1 &&
+			scc.canonicalForm.numVertices > largest.numVertices)
+		{
+			largest = scc.canonicalForm;
+		}
+	}
+	
+	std::cout << largest << std::endl;
 }
