@@ -40,6 +40,7 @@ be generated until they are called on, and this carries on down the stack.
 #include <iostream>
 #include <array>
 #include <exception>
+#include <unordered_set>
 #include "equivRelation.hpp"
 
 // A macro named MAX_DIM will be compiled in.
@@ -327,25 +328,18 @@ std::ostream& operator<<(std::ostream& stream, const subcube<N>& sc)
 template<unsigned N>
 struct subcubeClass
 {
-	std::vector<subcube<N>> instances;
+	subcube<N> canonicalForm;
+	std::unordered_set<subcube<N>,subcubeHash<N>> instances;
 	
-	subcubeClass(const subcube<N-1>& sub1, const subcube<N-1>& sub2)
+	subcubeClass(const subcube<N-1>& sub1, const subcube<N-1>& sub2) :
+		canonicalForm(sub1,sub2)
 	{
-		instances.emplace_back(sub1,sub2);
-		
 		for (const auto& perm : permutationSet<N>::perms)
 		{
-			instances.emplace_back(instances[0],perm);
+			auto [iter,inserted] = instances.emplace(canonicalForm,perm);
 			
-			if (instances.front() > instances.back())
+			if (inserted && canonicalForm > *iter)
 				throw std::exception();
-			
-			// Not the most efficient method, but works for now
-			for (unsigned i = 0; i < instances.size() - 1; i++)
-			{
-				if (instances.back() == instances[i])
-					instances.pop_back();
-			}
 		}
 	}
 	
@@ -363,11 +357,11 @@ struct subcubeClass
 				{
 					try
 					{
-						const auto newClass = subcubeClass(subClass1.instances[0],sub2);
+						const auto newClass = subcubeClass(subClass1.canonicalForm,sub2);
 						
 						for (const auto& existingClass : classes)
 						{
-							if (existingClass.instances[0] == newClass.instances[0])
+							if (existingClass.canonicalForm == newClass.canonicalForm)
 								// this is stupid, but just here for now
 								throw std::exception();
 						}
@@ -398,9 +392,10 @@ struct subcubeClass
 template<>
 struct subcubeClass<0>
 {
+	subcube<0> canonicalForm;
 	std::vector<subcube<0>> instances;
 	
-	subcubeClass(unsigned v)
+	subcubeClass(unsigned v) : canonicalForm(v)
 	{
 		instances.emplace_back(v);
 	}
