@@ -287,6 +287,21 @@ struct subcube<0>
 	}
 };
 
+// Provides a hash function for subcube.
+template<unsigned N>
+struct subcubeHash
+{
+	std::size_t operator()(const subcube<N> sc)
+	{
+		std::size_t hash = 0;
+		for (auto [ptype,compNum] : sc.verts)
+		{
+			hash = 2*hash + (ptype != empty);
+		}
+		return hash;
+	}
+};
+
 template<unsigned N>
 std::ostream& operator<<(std::ostream& stream, const subcube<N> sc)
 {
