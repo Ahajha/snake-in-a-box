@@ -1,0 +1,7 @@
+Question:
+
+If a hypercube configuration is not in canonical form, is there always an elementary
+operation that produces a 'smaller' equivalent configuration?
+
+For a given dimension n, there are (n choose 2) + n elementary operations given by
+either interchanging two dimensions or by inverting one.
