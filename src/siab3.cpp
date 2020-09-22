@@ -80,11 +80,11 @@ struct permutationSet
 				unsigned subind1 = 0, subind2 = 0;
 				while (ind < perms[0].size())
 				{
-					for (unsigned j = 0; j < (1 << i); j++)
+					for (unsigned j = 0; j < (1u << i); j++)
 					{
 						perms[index][ind++] = subPerm[subind1++];
 					}
-					for (unsigned j = 0; j < (1 << i); j++)
+					for (unsigned j = 0; j < (1u << i); j++)
 					{
 						perms[index][ind++] = subPerm.size() + subPerm[subind2++];
 					}
@@ -99,11 +99,11 @@ struct permutationSet
 				subind1 = 0, subind2 = 0;
 				while (ind < perms[0].size())
 				{
-					for (unsigned j = 0; j < (1 << i); j++)
+					for (unsigned j = 0; j < (1u << i); j++)
 					{
 						perms[index][ind++] = subPerm.size() + subPerm[subind1++];
 					}
-					for (unsigned j = 0; j < (1 << i); j++)
+					for (unsigned j = 0; j < (1u << i); j++)
 					{
 						perms[index][ind++] = subPerm[subind2++];
 					}
