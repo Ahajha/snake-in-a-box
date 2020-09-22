@@ -186,7 +186,7 @@ void equivRelation::operator+=(const equivRelation& other)
 
 equivRelation equivRelation::shave(unsigned n) const
 {
-	const auto& cgl = canonicalGroupLabeling();
+	updateCGL();
 	
 	std::vector<unsigned> leaders;
 	
@@ -264,17 +264,17 @@ bool equivRelation::coarserThan(const equivRelation& other) const
 
 std::vector<unsigned>& equivRelation::canonicalGroupLabeling() const
 {
-	if (changed)
-	{
-		updateCGL();
-		changed = false;
-	}
+	updateCGL();
 	
 	return cgl;
 }
 
 void equivRelation::updateCGL() const
 {
+	if (!changed) return;
+	
+	changed = false;
+	
 	// This is possible if this ER was constructed 'manually'
 	if (cgl.size() != elements.size()) cgl.resize(elements.size());
 	
