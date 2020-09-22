@@ -1,5 +1,4 @@
-siab1
-siab2
-siab3
+bin/*
+obj/*
 perf.data
 perf.data.old
