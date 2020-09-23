@@ -328,16 +328,6 @@ std::ostream& operator<<(std::ostream& stream, const subcube<N>& sc)
 	return stream;
 }
 
-// Need a forward declaration for another forward declaration...
-template<unsigned N>
-struct subcubeClass;
-
-template<unsigned N>
-struct subcubeClassHash
-{
-	std::size_t operator()(const subcubeClass<N>& sc) const;
-};
-
 // Holds a group of subcubes that are symmetrically identical.
 
 template<unsigned N>
@@ -358,30 +348,52 @@ struct subcubeClass
 		}
 	}
 	
-	static inline std::vector<subcubeClass> classes = {};
+	constexpr bool operator==(const subcubeClass& other) const
+	{
+		return canonicalForm == other.canonicalForm;
+	}
+};
+
+template<>
+struct subcubeClass<0>
+{
+	subcube<0> canonicalForm;
+	std::vector<subcube<0>> instances;
+	
+	subcubeClass(unsigned v) : canonicalForm(v)
+	{
+		instances.emplace_back(v);
+	}
+};
+
+template<unsigned N>
+struct subcubeClassHash
+{
+	std::size_t operator()(const subcubeClass<N>& sc) const
+	{
+		// Classes can just be identified by their canonical form.
+		return subcubeHash<N>()(sc.canonicalForm);
+	}
+};
+
+template<unsigned N>
+struct subcubeClassStorage
+{
+	static inline std::unordered_set<subcubeClass<N>,subcubeClassHash<N>> classes = {};
 	
 	static void init()
 	{
-		subcubeClass<N-1>::init();
+		subcubeClassStorage<N-1>::init();
 		
-		for (const auto& subClass1 : subcubeClass<N-1>::classes)
+		for (const auto& subClass1 : subcubeClassStorage<N-1>::classes)
 		{
-			for (const auto& subClass2 : subcubeClass<N-1>::classes)
+			for (const auto& subClass2 : subcubeClassStorage<N-1>::classes)
 			{
 				for (const auto& sub2 : subClass2.instances)
 				{
 					try
 					{
-						const auto newClass = subcubeClass(subClass1.canonicalForm,sub2);
-						
-						for (const auto& existingClass : classes)
-						{
-							if (existingClass.canonicalForm == newClass.canonicalForm)
-								// this is stupid, but just here for now
-								throw std::exception();
-						}
-						
-						classes.push_back(newClass);
+						classes.emplace(subClass1.canonicalForm,sub2);
 					}
 					catch (std::exception& e) {}
 				}
@@ -405,30 +417,15 @@ struct subcubeClass
 };
 
 template<>
-struct subcubeClass<0>
+struct subcubeClassStorage<0>
 {
-	subcube<0> canonicalForm;
-	std::vector<subcube<0>> instances;
-	
-	subcubeClass(unsigned v) : canonicalForm(v)
-	{
-		instances.emplace_back(v);
-	}
-	
-	static inline std::vector<subcubeClass> classes = {};
+	static inline std::vector<subcubeClass<0>> classes = {};
 	
 	static void init()
 	{
-		classes = { subcubeClass(1), subcubeClass(0) };
+		classes = { subcubeClass<0>(1), subcubeClass<0>(0) };
 	}
 };
-
-template<unsigned N>
-std::size_t subcubeClassHash<N>::operator()(const subcubeClass<N>& sc) const
-{
-	// Classes can just be identified by their canonical form.
-	return subcubeHash<N>()(sc.canonicalForm);
-}
 
 int main()
 {
@@ -436,10 +433,10 @@ int main()
 	
 	permutationSet<MAX_DIM>::init();
 	
-	subcubeClass<MAX_DIM>::init();
+	subcubeClassStorage<MAX_DIM>::init();
 	
 	subcube<MAX_DIM> largest;
-	for (const auto& scc : subcubeClass<MAX_DIM>::classes)
+	for (const auto& scc : subcubeClassStorage<MAX_DIM>::classes)
 	{
 		if (scc.canonicalForm.numComponents == 1 &&
 			scc.canonicalForm.numVertices > largest.numVertices)
