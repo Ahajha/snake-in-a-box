@@ -41,6 +41,7 @@ be generated until they are called on, and this carries on down the stack.
 #include <array>
 #include <exception>
 #include <unordered_set>
+#include <ctime>
 #include "equivRelation.hpp"
 
 // A macro named MAX_DIM will be compiled in.
@@ -431,6 +432,8 @@ std::size_t subcubeClassHash<N>::operator()(const subcubeClass<N> sc) const
 
 int main()
 {
+	auto startTime = clock();
+	
 	permutationSet<MAX_DIM>::init();
 	
 	subcubeClass<MAX_DIM>::init();
@@ -446,4 +449,7 @@ int main()
 	}
 	
 	std::cout << largest << std::endl;
+	
+	std::cout << "Finished in " << (float)(clock()-startTime)/(CLOCKS_PER_SEC)
+		<< " seconds" << std::endl;
 }
