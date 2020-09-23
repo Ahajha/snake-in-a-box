@@ -297,7 +297,7 @@ struct subcube<0>
 template<unsigned N>
 struct subcubeHash
 {
-	std::size_t operator()(const subcube<N> sc) const
+	std::size_t operator()(const subcube<N>& sc) const
 	{
 		std::size_t hash = 0;
 		for (auto [ptype,compNum] : sc.verts)
@@ -335,7 +335,7 @@ struct subcubeClass;
 template<unsigned N>
 struct subcubeClassHash
 {
-	std::size_t operator()(const subcubeClass<N> sc) const;
+	std::size_t operator()(const subcubeClass<N>& sc) const;
 };
 
 // Holds a group of subcubes that are symmetrically identical.
@@ -424,7 +424,7 @@ struct subcubeClass<0>
 };
 
 template<unsigned N>
-std::size_t subcubeClassHash<N>::operator()(const subcubeClass<N> sc) const
+std::size_t subcubeClassHash<N>::operator()(const subcubeClass<N>& sc) const
 {
 	// Classes can just be identified by their canonical form.
 	return subcubeHash<N>()(sc.canonicalForm);
