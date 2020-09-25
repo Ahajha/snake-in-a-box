@@ -365,7 +365,7 @@ struct subcubeClass<0>
 		instances.emplace_back(v);
 	}
 };
-
+/*
 template<unsigned N>
 struct subcubeClassHash
 {
@@ -375,11 +375,14 @@ struct subcubeClassHash
 		return subcubeHash<N>()(sc.canonicalForm);
 	}
 };
-
+*/
 template<unsigned N>
 struct subcubeClassStorage
 {
-	static inline std::unordered_set<subcubeClass<N>,subcubeClassHash<N>> classes = {};
+	// Each physical form is generated at most once, consequently canonical forms are
+	// generated at most once, so we don't need to check for membership, and thus
+	// we can use a vector rather than a set.
+	static inline std::vector<subcubeClass<N>> classes = {};
 	
 	static void init()
 	{
@@ -397,7 +400,7 @@ struct subcubeClassStorage
 					{
 						try
 						{
-							classes.emplace(subClass1.canonicalForm,sub2);
+							classes.emplace_back(subClass1.canonicalForm,sub2);
 						}
 						catch (std::exception& e) {}
 					}
