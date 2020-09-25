@@ -389,7 +389,7 @@ struct subcubeClassStorage
 		{
 			for (const auto& subClass2 : subcubeClassStorage<N-1>::classes)
 			{
-				// If the second canonical form is larger, we can prune this,
+				// If the second canonical form is smaller, we can prune this,
 				// since swapping them would certainly give a smaller result.
 				if (subClass1.canonicalForm <= subClass2.canonicalForm)
 				{
