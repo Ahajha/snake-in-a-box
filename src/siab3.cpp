@@ -389,13 +389,18 @@ struct subcubeClassStorage
 		{
 			for (const auto& subClass2 : subcubeClassStorage<N-1>::classes)
 			{
-				for (const auto& sub2 : subClass2.instances)
+				// If the second canonical form is larger, we can prune this,
+				// since swapping them would certainly give a smaller result.
+				if (subClass1.canonicalForm <= subClass2.canonicalForm)
 				{
-					try
+					for (const auto& sub2 : subClass2.instances)
 					{
-						classes.emplace(subClass1.canonicalForm,sub2);
+						try
+						{
+							classes.emplace(subClass1.canonicalForm,sub2);
+						}
+						catch (std::exception& e) {}
 					}
-					catch (std::exception& e) {}
 				}
 			}
 		}
