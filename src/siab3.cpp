@@ -45,6 +45,11 @@ be generated until they are called on, and this carries on down the stack.
 #include "equivRelation.hpp"
 
 // A macro named MAX_DIM will be compiled in.
+// Size 0 causes issues with template specializations,
+// so we ignore this case.
+#if MAX_DIM == 0
+	#error size should be positive
+#endif
 
 typedef char componentNumType;
 
@@ -367,56 +372,119 @@ struct subcubeClassStorage
 	// Each physical form is generated at most once, consequently canonical forms are
 	// generated at most once, so we don't need to check for membership, and thus
 	// we can use a vector rather than a set.
-	static inline std::vector<subcubeClass<N>> classes = {};
+	static inline std::vector<std::vector<subcubeClass<N>>> sets = {};
 	
-	static void init();
+	static void findLargestSet();
+	
+	static bool fill(int size);
 };
 
 template<unsigned N>
-void subcubeClassStorage<N>::init()
+void subcubeClassStorage<N>::findLargestSet()
 {
-	subcubeClassStorage<N-1>::init();
+	subcubeClassStorage<N-1>::findLargestSet();
 	
-	for (const auto& subClass1 : subcubeClassStorage<N-1>::classes)
-	{
-		for (const auto& subClass2 : subcubeClassStorage<N-1>::classes)
-		{
-			// If the second canonical form is smaller, we can prune this,
-			// since swapping them would certainly give a smaller result.
-			if (subClass1.canonicalForm <= subClass2.canonicalForm)
-			{
-				for (const auto& sub2 : subClass2.instances)
-				{
-					try
-					{
-						classes.emplace_back(subClass1.canonicalForm,sub2);
-					}
-					catch (std::exception& e) {}
-				}
-			}
-		}
-	}
+	unsigned largest = 2 * (subcubeClassStorage<N-1>::sets.size() - 1);
 	
-	std::cout << N << ", " << (1 << N) << " vertices, "
-		<< classes.size() << " classes" << std::endl << std::flush;
-	/*
-	for (unsigned i = 0; i < classes.size(); i++)
-	{
-		std::cout << i << ": " << classes[i].instances.size()
-			<< " instances" << std::endl;
-		for (const auto& instance : classes[i].instances)
-		{
-			std::cout << "    " << instance << std::endl;
-		}
-	}
-	*/
+	sets.resize(largest + 1);
+	
+	while (fill(largest)) --largest;
+	
+	sets.resize(largest + 1);
 }
 
 template<>
-void subcubeClassStorage<0>::init()
+void subcubeClassStorage<0>::findLargestSet()
 {
-	classes = { subcubeClass<0>(1), subcubeClass<0>(0) };
+	sets = { { subcubeClass<0>(0) }, { subcubeClass<0>(1) } };
 }
+
+template<>
+void subcubeClassStorage<MAX_DIM>::findLargestSet()
+{
+	subcubeClassStorage<MAX_DIM-1>::findLargestSet();
+	
+	unsigned largest = 2 * (subcubeClassStorage<MAX_DIM-1>::sets.size() - 1);
+	
+	sets.resize(largest + 1);
+	
+	while (true)
+	{
+		fill(largest);
+		
+		for (const auto& scc : sets[largest])
+		{
+			if (scc.canonicalForm.numComponents == 1)
+			{
+				std::cout << scc.canonicalForm << std::endl;
+				return;
+			}
+		}
+		
+		// We don't need to keep these, they are useless now.
+		// TODO: We don't really need to put them anywhere to begin with.
+		sets[largest].clear();
+		--largest;
+	}
+}
+
+template<unsigned N>
+bool subcubeClassStorage<N>::fill(int size)
+{
+	// This takes care of the case of the dimension
+	// being fully enumerated already, or if the set has already been filled.
+	if (size < 0 || !sets[size].empty()) return false;
+	
+	std::cout << "Filling size = " << size << " for dimension " << N << std::endl;
+	
+	// For brevity
+	const auto& smallerSets = subcubeClassStorage<N-1>::sets;
+	
+	int maxValue = std::min((int)(smallerSets.size() - 1), size);
+	
+	// Have 2 counters: One starts at the largest value that would be
+	// valid, which is either the max number of vertices for the
+	// previous dimension, or i itself, whichever is smaller. The other
+	// is whatever value it needs to be for them to add to i.
+	int s1 = maxValue, s2 = size - s1;
+	
+	while (s2 <= maxValue)
+	{
+		// I don't think a check for s1 is needed,
+		// but it doesn't hurt to have for now.
+		subcubeClassStorage<N-1>::fill(s1);
+		subcubeClassStorage<N-1>::fill(s2);
+		
+		for (const auto& set1 : smallerSets[s1])
+		{
+			for (const auto& set2 : smallerSets[s2])
+			{
+				// If the second canonical form is larger, we can prune this,
+				// since swapping them would certainly give a smaller result.
+				if (set1.canonicalForm <= set2.canonicalForm)
+				{
+					for (const auto& instance2 : set2.instances)
+					{
+						try
+						{
+							sets[size].emplace_back(set1.canonicalForm, instance2);
+						}
+						catch(std::exception& e) {}
+					}
+				}
+			}
+		}
+		
+		--s1;
+		++s2;
+	}
+	
+	return sets[size].empty();
+}
+
+// Return value also doesn't matter (I think), so just say it isn't empty.
+template<>
+bool subcubeClassStorage<0>::fill(int) { return false; }
 
 int main()
 {
@@ -424,19 +492,7 @@ int main()
 	
 	permutationSet<MAX_DIM>::init();
 	
-	subcubeClassStorage<MAX_DIM>::init();
-	
-	subcube<MAX_DIM> largest;
-	for (const auto& scc : subcubeClassStorage<MAX_DIM>::classes)
-	{
-		if (scc.canonicalForm.numComponents == 1 &&
-			scc.canonicalForm.numVertices > largest.numVertices)
-		{
-			largest = scc.canonicalForm;
-		}
-	}
-	
-	std::cout << largest << std::endl;
+	subcubeClassStorage<MAX_DIM>::findLargestSet();
 	
 	std::cout << "Finished in " << (float)(clock()-startTime)/(CLOCKS_PER_SEC)
 		<< " seconds" << std::endl;
