@@ -95,3 +95,25 @@ fill(N, i)
 // find it, great, if not, we need to call fill() with decreasing size
 // until we find one. We could also do this as a specialization with
 // N = MAX_DIM.
+
+-------------------------------------------------
+
+siab4: new idea
+
+Use the 'logarithmic snakes' method.
+
+Suppose we want to find all K-snakes in dimension N.
+
+We could take a floor(K/2)-snake and a ceil(K/2)-snake
+and put them together. This is then done recursively.
+(as a dynamic programming algorithm).
+
+This seems to have merit by combining some of the positives
+of both approaches:
+
+In siab2, we only dealt with snakes, but
+there was a lot of enumeration to be done with smaller snakes.
+
+In siab3, we used the idea of splitting the problem in half and
+recombining them, but we had large amounts of 'mini-snakes'
+which led to combinatoric explosion.
