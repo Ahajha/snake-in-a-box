@@ -103,6 +103,13 @@ void enumerate(hypercube& h, unsigned lastAddition)
 
 int main(int argn, char** args)
 {
+	if (argn == 1)
+	{
+		std::cerr << "Error: requires a nonnegative integer as an argument"
+			<< std::endl;
+		return 1;
+	}
+	
 	unsigned d = atoi(args[1]);
 	
 	hypercube h(d);

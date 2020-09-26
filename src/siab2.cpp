@@ -111,6 +111,13 @@ void enumerate(hypercube& h, unsigned lastAddition, unsigned highestDim = 0)
 
 int main(int argn, char** args)
 {
+	if (argn == 1)
+	{
+		std::cerr << "Error: requires a nonnegative integer as an argument"
+			<< std::endl;
+		return 1;
+	}
+	
 	dims = atoi(args[1]);
 	
 	hypercube h(dims);
