@@ -24,17 +24,19 @@ run_3: bin/siab3_$(size)
 
 compile_3: bin/siab3_$(size)
 
-bin/siab1: src/siab1.cpp
-	$(CC) $(CFLAGS) -o $@ src/siab1.cpp
+bin/siab1: obj/siab1.o obj/hypercube.o
+	$(CC) $(CFLAGS) $^ -o $@
 
-bin/siab2: src/siab2.cpp
-	$(CC) $(CFLAGS) -o $@ src/siab2.cpp
+bin/siab2: obj/siab2.o obj/hypercube.o
+	$(CC) $(CFLAGS) $^ -o $@
 
 bin/siab3_$(size): obj/equivRelation.o src/siab3.cpp
-	$(CC) $(CFLAGS) -o $@ -D MAX_DIM=$(size) obj/equivRelation.o src/siab3.cpp
+	$(CC) $(CFLAGS) $^ -o $@ -D MAX_DIM=$(size)
 
-obj/%.o: src/%.cpp
-	$(CC) $(CFLAGS) -c $< -o $@
+obj/%.o: src/%.cpp src/%.hpp
+	$(CC) $(CFLAGS) $< -o $@ -c
+
+src/%.hpp: ;
 
 clean: 
 	rm -f bin/* obj/*

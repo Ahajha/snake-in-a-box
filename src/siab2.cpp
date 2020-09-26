@@ -12,63 +12,10 @@ This is a bit better, d=6 finishes much more quickly, but is unable to finish 7.
 
 #include <vector>
 #include <iostream>
+#include "hypercube.hpp"
 
 // Number of dimensions.
 unsigned dims;
-
-struct vertex
-{
-	std::vector<unsigned> adjList;
-	
-	bool induced;
-	unsigned effectiveDegree;
-	
-	vertex() : adjList(), induced(false), effectiveDegree(0) {}
-};
-
-// Does a few things.
-// 1: Specifically a hypercube graph
-// 2: Keeps track of induced vertices
-struct hypercube
-{
-	std::vector<vertex> vertices;
-	unsigned numInduced;
-	
-	// Constructs a hypercube of a given dimension.
-	hypercube(unsigned d) : vertices(1 << d), numInduced(0)
-	{
-		for (unsigned i = 0; i < vertices.size(); i++)
-		{
-			// Each vertex has exactly d neighbors, each of which
-			// can be found by taking i and changing one bit.
-			for (unsigned j = 0; j < d; j++)
-			{
-				vertices[i].adjList.push_back(i ^ (1 << j));
-			}
-		}
-	}
-	
-	void induce(unsigned i)
-	{
-		vertices[i].induced = true;
-		++numInduced;
-		for (unsigned adj : vertices[i].adjList)
-		{
-			++vertices[adj].effectiveDegree;
-		}
-	}
-	
-	// Inverse of induce
-	void reduce(unsigned i)
-	{
-		vertices[i].induced = false;
-		--numInduced;
-		for (unsigned adj : vertices[i].adjList)
-		{
-			--vertices[adj].effectiveDegree;
-		}
-	}
-};
 
 // Does a naive depth-first search for the largest induced pat
 void enumerate(hypercube& h, unsigned lastAddition, unsigned highestDim = 0)
@@ -79,12 +26,7 @@ void enumerate(hypercube& h, unsigned lastAddition, unsigned highestDim = 0)
 	if (h.numInduced > maxNumInduced)
 	{
 		maxNumInduced = h.numInduced;
-		std::cout << maxNumInduced << ':';
-		for (unsigned n : dimString)
-		{
-			std::cout << ' ' << n;
-		}
-		std::cout << std::endl;
+		std::cout << h;
 	}
 	
 	// By the nature of the order of the vertices, index in the adjacency
