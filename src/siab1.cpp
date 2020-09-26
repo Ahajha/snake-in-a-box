@@ -6,7 +6,6 @@ though we don't really care here), 6 might finish eventually but would
 take a little bit, not sure how long exactly.
 */
 
-#include <vector>
 #include <iostream>
 #include "hypercube.hpp"
 

@@ -10,7 +10,6 @@ we must also keep track of the maximum dimension already used.
 This is a bit better, d=6 finishes much more quickly, but is unable to finish 7.
 */
 
-#include <vector>
 #include <iostream>
 #include "hypercube.hpp"
 
@@ -21,7 +20,6 @@ unsigned dims;
 void enumerate(hypercube& h, unsigned lastAddition, unsigned highestDim = 0)
 {
 	static unsigned maxNumInduced = 0;
-	static std::vector<unsigned> dimString;
 	
 	if (h.numInduced > maxNumInduced)
 	{
@@ -41,12 +39,10 @@ void enumerate(hypercube& h, unsigned lastAddition, unsigned highestDim = 0)
 		if (h.vertices[adj].effectiveDegree == 1 && !h.vertices[adj].induced)
 		{
 			h.induce(adj);
-			dimString.push_back(i);
 			
 			enumerate(h,adj,(i == highestDim) ? highestDim + 1 : highestDim);
 			
 			h.reduce(adj);
-			dimString.pop_back();
 		}
 	}
 }
