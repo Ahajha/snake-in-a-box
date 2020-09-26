@@ -347,11 +347,6 @@ struct subcubeClass
 				throw std::exception();
 		}
 	}
-	
-	constexpr bool operator==(const subcubeClass& other) const
-	{
-		return canonicalForm == other.canonicalForm;
-	}
 };
 
 template<>
@@ -365,17 +360,7 @@ struct subcubeClass<0>
 		instances.emplace_back(v);
 	}
 };
-/*
-template<unsigned N>
-struct subcubeClassHash
-{
-	std::size_t operator()(const subcubeClass<N>& sc) const
-	{
-		// Classes can just be identified by their canonical form.
-		return subcubeHash<N>()(sc.canonicalForm);
-	}
-};
-*/
+
 template<unsigned N>
 struct subcubeClassStorage
 {
