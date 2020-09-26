@@ -90,9 +90,9 @@ void enumerate(hypercube& h, unsigned lastAddition)
 
 	for (unsigned adj : h.vertices[lastAddition].adjList)
 	{
-		// We know the adjacent vertex won't be induced,
-		// but we need to check that it does not have any other neighbors.
-		if (h.vertices[adj].effectiveDegree == 1)
+		// We need to check that the neighbor isn't induced specifically
+		// for the case of the starting vertex's first expansion.
+		if (h.vertices[adj].effectiveDegree == 1 && !h.vertices[adj].induced)
 		{
 			h.induce(adj);
 			enumerate(h,adj);
