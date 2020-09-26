@@ -25,7 +25,6 @@ struct hypercube
 	// Constructs a hypercube of a given dimension.
 	hypercube(unsigned d);
 	
-	
 	void induce(unsigned i);
 	void reduce(unsigned i);
 	
