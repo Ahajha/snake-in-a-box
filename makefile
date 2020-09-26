@@ -7,14 +7,28 @@ CFILES = src/siab3\
 $(shell mkdir -p bin obj)
 
 help:
-	@echo "\"make all size=N\" to compile for a given size"
-	@echo "\"make run size=N\" to compile and run on a given size"
+	@echo "\"make run_X size=N\" to compile and run siabX on a given size, for X in (1,2,3)"
+	
+	@echo "\"make compile_3 size=N\" to compile siab3 for a given size"
+	
 	@echo "\"make clean\" to remove all generated binary files"
 
-all: bin/siab3_$(size)
+run_1: bin/siab1
+	./bin/siab1 $(size)
 
-run: bin/siab3_$(size)
+run_2: bin/siab2
+	./bin/siab2 $(size)
+
+run_3: bin/siab3_$(size)
 	./bin/siab3_$(size)
+
+compile_3: bin/siab3_$(size)
+
+bin/siab1: src/siab1.cpp
+	$(CC) $(CFLAGS) -o $@ src/siab1.cpp
+
+bin/siab2: src/siab2.cpp
+	$(CC) $(CFLAGS) -o $@ src/siab2.cpp
 
 bin/siab3_$(size): obj/equivRelation.o src/siab3.cpp
 	$(CC) $(CFLAGS) -o $@ -D MAX_DIM=$(size) obj/equivRelation.o src/siab3.cpp
