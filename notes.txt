@@ -4,4 +4,94 @@ If a hypercube configuration is not in canonical form, is there always an elemen
 operation that produces a 'smaller' equivalent configuration?
 
 For a given dimension n, there are (n choose 2) + n elementary operations given by
-either interchanging two dimensions or by inverting one.
+either interchanging two dimensions or by inverting one. (we might be able to get this lower)
+
+Lemma (could be helpful in proving this, if true): (NOT proven)
+
+P and Q are permutations on a vector V. If P(V) >= V && Q(V) >= V, then P(Q(V)) >= V.
+(It would also immediately follow that Q(P(V)) >= V, by swapping the arguments)
+
+-----------------------------
+
+Greedy algorithm:
+
+Find and fill largest set for size N-1
+// For N = 0, findLargestSet could just initialize both sets, any other
+// recursive calls could be to just "dummy" methods.
+findLargestSet(N)
+{
+	findLargestSet(N-1)
+	
+	// The size of the previous set - 1 is the largest index,
+	// which is the max number of vertices.
+	largest = 2 * (dim(N-1).set.size() - 1)
+	
+	// This grows the set
+	set.resize(largest + 1)
+	
+	// Fill returns true if empty, which is our continue condition.
+	for (; set[largest].fill(); largest--) {}
+	
+	// And this shrinks it back down to size
+	set.resize(largest + 1)
+}
+
+We then need a fill method:
+
+fill(N, i)
+{
+	// This takes care of the case of the dimension
+	// being fully enumerated already
+	if (i < 0) return;
+	
+	// Have 2 counters: One starts at the largest value that would be
+	// valid, which is either the max number of vertices for the
+	// previous dimension, or i itself, whichever is smaller. The other
+	// is whatever value it needs to be for them to add to i.
+	
+	s1 = min(dim(N-1).maxNV, i)
+	s2 = i - s1
+	
+	// This looks like it allows duplicates, such as 8,3 and 3,8, but
+	// this is needed since we don't know which of them will produce
+	// the canonical form.
+	while (s2 <= initial value of s1)
+	{
+		// I don't think a check for s1 is needed,
+		// but it doesn't hurt to have for now.
+		if (dim(N-1).set[s1].empty) dim(N-1).set[s1].fill()
+		if (dim(N-1).set[s2].empty) dim(N-1).set[s2].fill()
+		
+		for (set1 : dim(N-1).set[s1])
+		{
+			for (set2 : dim(N-1).set[s2])
+			{
+				// If the second canonical form is larger, we can prune this,
+				// since swapping them would certainly give a smaller result.
+				if (set1.canonicalForm <= set2.canonicalForm)
+				{
+					for (instance2 : set2.instances)
+					{
+						try
+						{
+							set[i].emplace_back(set1.canonicalForm, instance2)
+						}
+						catch(std::exception& e) {}
+					}
+				}
+			}
+		}
+		
+		s1--
+		s2++
+	}
+	
+	// Helpful for making the above code cleaner
+	return set[i].empty
+}
+
+// After we call findLargestSet(MAX_DIM), we just need to scan through
+// dim(MAX_DIM).last() until we find something with 1 component. If we
+// find it, great, if not, we need to call fill() with decreasing size
+// until we find one. We could also do this as a specialization with
+// N = MAX_DIM.
