@@ -369,56 +369,54 @@ struct subcubeClassStorage
 	// we can use a vector rather than a set.
 	static inline std::vector<subcubeClass<N>> classes = {};
 	
-	static void init()
+	static void init();
+};
+
+template<unsigned N>
+void subcubeClassStorage<N>::init()
+{
+	subcubeClassStorage<N-1>::init();
+	
+	for (const auto& subClass1 : subcubeClassStorage<N-1>::classes)
 	{
-		subcubeClassStorage<N-1>::init();
-		
-		for (const auto& subClass1 : subcubeClassStorage<N-1>::classes)
+		for (const auto& subClass2 : subcubeClassStorage<N-1>::classes)
 		{
-			for (const auto& subClass2 : subcubeClassStorage<N-1>::classes)
+			// If the second canonical form is smaller, we can prune this,
+			// since swapping them would certainly give a smaller result.
+			if (subClass1.canonicalForm <= subClass2.canonicalForm)
 			{
-				// If the second canonical form is smaller, we can prune this,
-				// since swapping them would certainly give a smaller result.
-				if (subClass1.canonicalForm <= subClass2.canonicalForm)
+				for (const auto& sub2 : subClass2.instances)
 				{
-					for (const auto& sub2 : subClass2.instances)
+					try
 					{
-						try
-						{
-							classes.emplace_back(subClass1.canonicalForm,sub2);
-						}
-						catch (std::exception& e) {}
+						classes.emplace_back(subClass1.canonicalForm,sub2);
 					}
+					catch (std::exception& e) {}
 				}
 			}
 		}
-		
-		std::cout << N << ", " << (1 << N) << " vertices, "
-			<< classes.size() << " classes" << std::endl << std::flush;
-		/*
-		for (unsigned i = 0; i < classes.size(); i++)
-		{
-			std::cout << i << ": " << classes[i].instances.size()
-				<< " instances" << std::endl;
-			for (const auto& instance : classes[i].instances)
-			{
-				std::cout << "    " << instance << std::endl;
-			}
-		}
-		*/
 	}
-};
+	
+	std::cout << N << ", " << (1 << N) << " vertices, "
+		<< classes.size() << " classes" << std::endl << std::flush;
+	/*
+	for (unsigned i = 0; i < classes.size(); i++)
+	{
+		std::cout << i << ": " << classes[i].instances.size()
+			<< " instances" << std::endl;
+		for (const auto& instance : classes[i].instances)
+		{
+			std::cout << "    " << instance << std::endl;
+		}
+	}
+	*/
+}
 
 template<>
-struct subcubeClassStorage<0>
+void subcubeClassStorage<0>::init()
 {
-	static inline std::vector<subcubeClass<0>> classes = {};
-	
-	static void init()
-	{
-		classes = { subcubeClass<0>(1), subcubeClass<0>(0) };
-	}
-};
+	classes = { subcubeClass<0>(1), subcubeClass<0>(0) };
+}
 
 int main()
 {
