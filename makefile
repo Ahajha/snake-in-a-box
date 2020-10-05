@@ -5,7 +5,8 @@ LINK   = g++-10
 $(shell mkdir -p bin obj)
 
 help:
-	@echo "\"make run_X size=N\" to compile and run siabX on a given size, for X in (1,2,3)"
+	@echo "\"make run_X size=N\" to compile and run siabX on a given size, for X in (1,2,3,4)"
+	@echo "siab4 requires an extra argument, guess=G, of an estimate of the answer."
 	@echo "\"make clean\" to remove all generated binary files"
 
 run_1: bin/siab1
@@ -18,7 +19,7 @@ run_3: bin/siab3_$(size)
 	./bin/siab3_$(size)
 
 run_4: bin/siab4_$(size)
-	./bin/siab4_$(size)
+	./bin/siab4_$(size) $(guess)
 
 bin/siab1: obj/siab1.o obj/hypercube.o
 bin/siab2: obj/siab2.o obj/hypercube.o

@@ -218,8 +218,48 @@ struct snakeClass
 	}
 };
 
-int main()
+void findClassesOfSize(unsigned n, std::array<std::vector<snakeClass>,ARR_SIZE + 1>& snakeClasses)
 {
+	if (n <= 3 || !snakeClasses[n].empty()) return;
+	
+	unsigned nv1 = n/2, nv2 = (n + 1)/2;
+	
+	findClassesOfSize(nv1, snakeClasses);
+	findClassesOfSize(nv2, snakeClasses);
+	
+	for (const auto& s1Class : snakeClasses[nv1])
+	{
+		for (const auto& s2Class : snakeClasses[nv2])
+		{
+			for (const auto& s1 : s1Class.forms)
+			{
+				for (const auto& s2 : s2Class.forms)
+				{
+					if (s1 < s2)
+					{
+						try
+						{
+							snakeClasses[n].emplace_back(snake(s1,s2));
+						}
+						catch(std::exception&) {}
+					}
+				}
+			}
+		}
+	}
+}
+
+int main(int argn, char** args)
+{
+	if (argn != 2)
+	{
+		std::cerr << "Error: requires a guess of the answer as an argument"
+			<< std::endl;
+		return 1;
+	}
+	
+	unsigned guess = atoi(args[1]);
+
 	permutationSet<MAX_DIM>::init();
 	
 	std::array<std::vector<snakeClass>,ARR_SIZE + 1> snakeClasses;
@@ -229,37 +269,31 @@ int main()
 		snakeClasses[i] = { snakeClass(snake(i)) };
 	}
 	
-	// This currently does not do anything, since it's only going
-	// to be squashing snakes on top of themselves. Need permutations.
-	for (unsigned i = 4; i < snakeClasses.size(); i++)
+	findClassesOfSize(guess,snakeClasses);
+	
+	unsigned answer;
+	if (snakeClasses[guess].empty())
 	{
-		unsigned nv1 = i/2, nv2 = (i + 1)/2;
-		
-		//std::cout << "i = " << i << ", nv1 = " << nv1 << ", nv2 = " << nv2 << std::endl;
-		
-		for (const auto& s1Class : snakeClasses[nv1])
+		// Overestimate, go down
+		do
 		{
-			for (const auto& s2Class : snakeClasses[nv2])
-			{
-				for (const auto& s1 : s1Class.forms)
-				{
-					for (const auto& s2 : s2Class.forms)
-					{
-						if (s1 < s2)
-						{
-							try
-							{
-								snakeClasses[i].emplace_back(snake(s1,s2));
-								
-								std::cout << s1 << std::endl << s2 << std::endl;
-							}
-							catch(std::exception&) {}
-						}
-					}
-				}
-			}
+			findClassesOfSize(--guess, snakeClasses);
 		}
+		while(snakeClasses[guess].empty());
+		answer = guess;
 	}
+	else
+	{
+		// Underestimate, or exact and need to check one above
+		do
+		{
+			findClassesOfSize(++guess, snakeClasses);
+		}
+		while(!snakeClasses[guess].empty());
+		answer = guess - 1;
+	}
+	
+	std::cout << "Answer = " << answer << std::endl;
 	
 	for (unsigned i = 0; i < snakeClasses.size(); i++)
 	{
