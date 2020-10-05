@@ -1,6 +1,8 @@
 #include <array>
 #include <exception>
+#include <unordered_set>
 #include "hypercube.hpp"
+#include "permutation.hpp"
 
 // Empty is a non-induced vertex that is valid to induce
 // Invalid is non-induced, not allowed to induce
@@ -87,7 +89,7 @@ struct snake
 		}
 	}
 	
-	std::pair<unsigned,unsigned> getMergedEndpoints(const snake& s1, const snake& s2)
+	std::pair<unsigned,unsigned> getMergedEndpoints(const snake& s1, const snake& s2) const
 	{
 		bool matchFound = false;
 		std::pair<unsigned, unsigned> result;
@@ -139,23 +141,92 @@ struct snake
 		}
 	}
 	
+	snake(const snake& other, const permutationSet<MAX_DIM>::permutation& perm) :
+		numVertices(other.numVertices)
+	{
+		for (unsigned i = 0; i < points.size(); i++)
+		{
+			points[perm[i]] = other.points[i];
+		}
+		endpoints = { perm[other.endpoints[0]], perm[other.endpoints[1]] };
+	}
+	
+	std::strong_ordering operator<=>(const snake& other) const
+	{
+		for (unsigned i = 0; i < points.size(); i++)
+		{
+			bool exists1 = points[i] == induced;
+			bool exists2 = other.points[i] == induced;
+			if (exists1 != exists2)
+				return exists1 <=> exists2;
+		}
+		return std::strong_ordering::equal;
+	}
+	
+	bool operator==(const snake& other) const
+	{
+		for (unsigned i = 0; i < points.size(); i++)
+		{
+			bool exists1 = points[i] == induced;
+			bool exists2 = other.points[i] == induced;
+			if (exists1 != exists2)
+				return false;
+		}
+		return true;
+	}
+	
 	friend std::ostream& operator<<(std::ostream& stream, const snake& snake)
 	{
 		for (pointType p : snake.points)
 		{
 			stream << p << ' ';
 		}
-		return stream << "| " << snake.numVertices << " vertices";
+		return stream << "| " << snake.numVertices << " vertices, endpoints = {"
+			<< snake.endpoints[0] << ',' << snake.endpoints[1] << '}';
+	}
+};
+
+struct snakeHash
+{
+	std::size_t operator()(const snake& s) const
+	{
+		std::size_t hash = 0;
+		for (pointType p : s.points)
+		{
+			hash = 2 * hash + (p != empty);
+		}
+		return hash;
+	}
+};
+
+struct snakeClass
+{
+	snake canonicalForm;
+	std::unordered_set<snake, snakeHash> forms;
+	
+	snakeClass(const snake& cf) : canonicalForm(cf)
+	{
+		for (const auto& perm : permutationSet<MAX_DIM>::perms)
+		{
+			auto [iter,success] = forms.emplace(canonicalForm,perm);
+			
+			if (success && *iter < canonicalForm)
+			{
+				throw std::exception();
+			}
+		}
 	}
 };
 
 int main()
 {
-	std::array<std::vector<snake>,ARR_SIZE + 1> snakeClasses;
+	permutationSet<MAX_DIM>::init();
+	
+	std::array<std::vector<snakeClass>,ARR_SIZE + 1> snakeClasses;
 	
 	for (unsigned i = 1; i <= 3 && i < snakeClasses.size(); i++)
 	{
-		snakeClasses[i] = { snake(i) };
+		snakeClasses[i] = { snakeClass(snake(i)) };
 	}
 	
 	// This currently does not do anything, since it's only going
@@ -166,15 +237,26 @@ int main()
 		
 		//std::cout << "i = " << i << ", nv1 = " << nv1 << ", nv2 = " << nv2 << std::endl;
 		
-		for (const auto& s1 : snakeClasses[nv1])
+		for (const auto& s1Class : snakeClasses[nv1])
 		{
-			for (const auto& s2 : snakeClasses[nv2])
+			for (const auto& s2Class : snakeClasses[nv2])
 			{
-				try
+				for (const auto& s1 : s1Class.forms)
 				{
-					snakeClasses[i].emplace_back(s1,s2);
+					for (const auto& s2 : s2Class.forms)
+					{
+						if (s1 < s2)
+						{
+							try
+							{
+								snakeClasses[i].emplace_back(snake(s1,s2));
+								
+								std::cout << s1 << std::endl << s2 << std::endl;
+							}
+							catch(std::exception&) {}
+						}
+					}
 				}
-				catch(std::exception&) {}
 			}
 		}
 	}
@@ -186,7 +268,13 @@ int main()
 			std::cout << "Size " << i << ":\n";
 			for (const auto& s : snakeClasses[i])
 			{
-				std::cout << s << std::endl;
+				std::cout << s.canonicalForm << std::endl;
+				/*
+				for (const auto& form : s.forms)
+				{
+					std::cout << '\t' << form << std::endl;
+				}
+				*/
 			}
 		}
 	}

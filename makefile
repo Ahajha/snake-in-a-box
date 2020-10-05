@@ -31,7 +31,7 @@ bin/%:
 obj/siab3_$(size).o: src/siab3.cpp src/equivRelation.hpp src/permutation.hpp
 	$(CC) $(CFLAGS) $< -o $@ -c -D MAX_DIM=$(size)
 
-obj/siab4_$(size).o: src/siab4.cpp src/hypercube.hpp
+obj/siab4_$(size).o: src/siab4.cpp src/hypercube.hpp src/permutation.hpp
 	$(CC) $(CFLAGS) $< -o $@ -c -D MAX_DIM=$(size)
 
 obj/%.o: src/%.cpp src/%.hpp
