@@ -35,11 +35,17 @@ bin/siab1: obj/siab1.o obj/hypercube.o
 bin/siab2: obj/siab2.o obj/hypercube.o
 	$(CC) $(CFLAGS) $^ -o $@
 
-bin/siab3_$(size): obj/equivRelation.o src/siab3.cpp
-	$(CC) $(CFLAGS) $^ -o $@ -D MAX_DIM=$(size)
+bin/siab3_$(size): obj/siab3.o obj/equivRelation.o
+	$(CC) $(CFLAGS) $^ -o $@
 
-bin/siab4_$(size): src/siab4.cpp obj/hypercube.o
-	$(CC) $(CFLAGS) $^ -o $@ -D MAX_DIM=$(size)
+bin/siab4_$(size): obj/siab4.o obj/hypercube.o
+	$(CC) $(CFLAGS) $^ -o $@
+
+obj/siab3.o: src/siab3.cpp src/equivRelation.hpp src/permutation.hpp
+	$(CC) $(CFLAGS) $< -o $@ -c -D MAX_DIM=$(size)
+
+obj/siab4.o: src/siab4.cpp src/hypercube.hpp
+	$(CC) $(CFLAGS) $< -o $@ -c -D MAX_DIM=$(size)
 
 obj/%.o: src/%.cpp src/%.hpp
 	$(CC) $(CFLAGS) $< -o $@ -c
