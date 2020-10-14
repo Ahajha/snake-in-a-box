@@ -2,7 +2,7 @@
 #include <vector>
 #include <exception>
 #include <unordered_set>
-#include "hypercube.tpp"
+#include "hypercube.hpp"
 #include "permutation.hpp"
 
 // Empty is a non-induced vertex that is valid to induce

@@ -11,7 +11,7 @@ This is a bit better, d=6 finishes much more quickly, but is unable to finish 7.
 */
 
 #include <iostream>
-#include "hypercube.tpp"
+#include "hypercube.hpp"
 
 // A macro named "MAX_DIM" will be compiled in.
 

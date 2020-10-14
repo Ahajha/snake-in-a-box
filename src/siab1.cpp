@@ -7,7 +7,7 @@ take a little bit, not sure how long exactly.
 */
 
 #include <iostream>
-#include "hypercube.tpp"
+#include "hypercube.hpp"
 
 // A macro named "MAX_DIM" will be compiled in.
 

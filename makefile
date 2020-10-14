@@ -1,7 +1,8 @@
 CFLAGS = --std=c++20 -g -Wall -Wextra -Wshadow -Wuninitialized -O3 -fshort-enums
 CC     = g++-10
 LINK   = g++-10
-HCUBE_FILES = src/hypercube.tpp
+HCUBE_FILES = src/hypercube.hpp   src/hypercube.tpp
+PERMU_FILES = src/permutation.hpp src/permutation.tpp
 
 $(shell mkdir -p bin obj)
 
@@ -31,21 +32,15 @@ bin/%:
 	$(LINK) $^ -o $@
 
 obj/siab1_$(size).o: src/siab1.cpp $(HCUBE_FILES)
-	$(CC) $(CFLAGS) $< -o $@ -c -D MAX_DIM=$(size)
-
 obj/siab2_$(size).o: src/siab2.cpp $(HCUBE_FILES)
-	$(CC) $(CFLAGS) $< -o $@ -c -D MAX_DIM=$(size)
+obj/siab3_$(size).o: src/siab3.cpp $(PERMU_FILES) src/equivRelation.hpp
+obj/siab4_$(size).o: src/siab4.cpp $(HCUBE_FILES) $(PERMU_FILES)
 
-obj/siab3_$(size).o: src/siab3.cpp src/equivRelation.hpp src/permutation.hpp
-	$(CC) $(CFLAGS) $< -o $@ -c -D MAX_DIM=$(size)
-
-obj/siab4_$(size).o: src/siab4.cpp $(HCUBE_FILES) src/permutation.hpp
+obj/siab%_$(size).o:
 	$(CC) $(CFLAGS) $< -o $@ -c -D MAX_DIM=$(size)
 
 obj/%.o: src/%.cpp src/%.hpp
 	$(CC) $(CFLAGS) $< -o $@ -c
-
-src/%.hpp: ;
 
 clean: 
 	rm -f bin/* obj/*
