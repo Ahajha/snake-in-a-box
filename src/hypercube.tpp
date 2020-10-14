@@ -22,7 +22,7 @@ struct hypercube
 	// [i][j] gives the vertex obtained by starting from vertex i and
 	// moving across dimension j.
 	constexpr static auto adjLists = makeAdjLists();
-
+	
 	struct vertex
 	{
 		bool induced;

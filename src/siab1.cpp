@@ -7,10 +7,12 @@ take a little bit, not sure how long exactly.
 */
 
 #include <iostream>
-#include "hypercube.hpp"
+#include "hypercube.tpp"
+
+// A macro named "MAX_DIM" will be compiled in.
 
 // Does a naive depth-first search for the largest induced path
-void enumerate(hypercube& h, unsigned lastAddition)
+void enumerate(hypercube<MAX_DIM>& h, unsigned lastAddition)
 {
 	static unsigned maxNumInduced = 0;
 	
@@ -20,7 +22,7 @@ void enumerate(hypercube& h, unsigned lastAddition)
 		std::cout << h;
 	}
 
-	for (unsigned adj : h.vertices[lastAddition].adjList)
+	for (unsigned adj : hypercube<MAX_DIM>::adjLists[lastAddition])
 	{
 		// We need to check that the neighbor isn't induced specifically
 		// for the case of the starting vertex's first expansion.
@@ -33,18 +35,9 @@ void enumerate(hypercube& h, unsigned lastAddition)
 	}
 }
 
-int main(int argn, char** args)
+int main()
 {
-	if (argn == 1)
-	{
-		std::cerr << "Error: requires a nonnegative integer as an argument"
-			<< std::endl;
-		return 1;
-	}
-	
-	unsigned d = atoi(args[1]);
-	
-	hypercube h(d);
+	hypercube<MAX_DIM> h;
 	
 	h.induce(0);
 
