@@ -25,7 +25,7 @@ run_4: bin/siab4_$(size)
 bin/siab1_$(size): obj/siab1_$(size).o
 bin/siab2_$(size): obj/siab2_$(size).o
 bin/siab3_$(size): obj/siab3_$(size).o obj/equivRelation.o
-bin/siab4_$(size): obj/siab4_$(size).o obj/hypercube.o
+bin/siab4_$(size): obj/siab4_$(size).o
 
 bin/%:
 	$(LINK) $^ -o $@
@@ -39,7 +39,7 @@ obj/siab2_$(size).o: src/siab2.cpp $(HCUBE_FILES)
 obj/siab3_$(size).o: src/siab3.cpp src/equivRelation.hpp src/permutation.hpp
 	$(CC) $(CFLAGS) $< -o $@ -c -D MAX_DIM=$(size)
 
-obj/siab4_$(size).o: src/siab4.cpp src/hypercube.hpp src/permutation.hpp
+obj/siab4_$(size).o: src/siab4.cpp $(HCUBE_FILES) src/permutation.hpp
 	$(CC) $(CFLAGS) $< -o $@ -c -D MAX_DIM=$(size)
 
 obj/%.o: src/%.cpp src/%.hpp

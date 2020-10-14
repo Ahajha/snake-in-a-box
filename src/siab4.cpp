@@ -1,7 +1,8 @@
 #include <array>
+#include <vector>
 #include <exception>
 #include <unordered_set>
-#include "hypercube.hpp"
+#include "hypercube.tpp"
 #include "permutation.hpp"
 
 // Empty is a non-induced vertex that is valid to induce
@@ -17,7 +18,7 @@ enum pointType { empty, invalid, induced };
 
 #define ARR_SIZE (1 << MAX_DIM)
 
-static inline hypercube h(MAX_DIM);
+static inline hypercube<MAX_DIM> h;
 
 pointType intersect(pointType p1, pointType p2)
 {
@@ -79,7 +80,7 @@ struct snake
 		// Mark the vertices around the middle vertex as invalid, except for the endpoints.
 		if (nv == 3)
 		{
-			for (unsigned adj : h.vertices[ARR_SIZE - 1].adjList)
+			for (unsigned adj : hypercube<MAX_DIM>::adjLists[ARR_SIZE - 1])
 			{
 				if (points[adj] != induced)
 				{
@@ -130,12 +131,12 @@ struct snake
 		
 		// Mark any neighbors of the old endpoints as invalid, since
 		// these endpoints are now midpoints.
-		for (unsigned adj : h.vertices[s1.endpoints[ep1]].adjList)
+		for (unsigned adj : hypercube<MAX_DIM>::adjLists[s1.endpoints[ep1]])
 		{
 			if (points[adj] == empty) points[adj] = invalid;
 		}
 		
-		for (unsigned adj : h.vertices[s2.endpoints[ep2]].adjList)
+		for (unsigned adj : hypercube<MAX_DIM>::adjLists[s2.endpoints[ep2]])
 		{
 			if (points[adj] == empty) points[adj] = invalid;
 		}
