@@ -13,8 +13,8 @@ help:
 run_1: bin/siab1_$(size)
 	./bin/siab1_$(size)
 
-run_2: bin/siab2
-	./bin/siab2 $(size)
+run_2: bin/siab2_$(size)
+	./bin/siab2_$(size)
 
 run_3: bin/siab3_$(size)
 	./bin/siab3_$(size)
@@ -23,7 +23,7 @@ run_4: bin/siab4_$(size)
 	./bin/siab4_$(size) $(guess)
 
 bin/siab1_$(size): obj/siab1_$(size).o
-bin/siab2: obj/siab2.o obj/hypercube.o
+bin/siab2_$(size): obj/siab2_$(size).o
 bin/siab3_$(size): obj/siab3_$(size).o obj/equivRelation.o
 bin/siab4_$(size): obj/siab4_$(size).o obj/hypercube.o
 
@@ -31,6 +31,9 @@ bin/%:
 	$(LINK) $^ -o $@
 
 obj/siab1_$(size).o: src/siab1.cpp $(HCUBE_FILES)
+	$(CC) $(CFLAGS) $< -o $@ -c -D MAX_DIM=$(size)
+
+obj/siab2_$(size).o: src/siab2.cpp $(HCUBE_FILES)
 	$(CC) $(CFLAGS) $< -o $@ -c -D MAX_DIM=$(size)
 
 obj/siab3_$(size).o: src/siab3.cpp src/equivRelation.hpp src/permutation.hpp

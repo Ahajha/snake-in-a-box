@@ -11,13 +11,12 @@ This is a bit better, d=6 finishes much more quickly, but is unable to finish 7.
 */
 
 #include <iostream>
-#include "hypercube.hpp"
+#include "hypercube.tpp"
 
-// Number of dimensions.
-unsigned dims;
+// A macro named "MAX_DIM" will be compiled in.
 
 // Does a naive depth-first search for the largest induced pat
-void enumerate(hypercube& h, unsigned lastAddition, unsigned highestDim = 0)
+void enumerate(hypercube<MAX_DIM>& h, unsigned lastAddition, unsigned highestDim = 0)
 {
 	static unsigned maxNumInduced = 0;
 	
@@ -29,10 +28,10 @@ void enumerate(hypercube& h, unsigned lastAddition, unsigned highestDim = 0)
 	
 	// By the nature of the order of the vertices, index in the adjacency
 	// list is also the dimension number.
-	unsigned stop = std::min(dims,highestDim + 1);
+	unsigned stop = std::min((unsigned)MAX_DIM,highestDim + 1);
 	for (unsigned i = 0; i < stop; i++)
 	{
-		unsigned adj = h.vertices[lastAddition].adjList[i];
+		unsigned adj = hypercube<MAX_DIM>::adjLists[lastAddition][i];
 		
 		// We need to check that the neighbor isn't induced specifically
 		// for the case of the starting vertex's first expansion.
@@ -40,25 +39,16 @@ void enumerate(hypercube& h, unsigned lastAddition, unsigned highestDim = 0)
 		{
 			h.induce(adj);
 			
-			enumerate(h,adj,(i == highestDim) ? highestDim + 1 : highestDim);
+			enumerate(h,adj,highestDim + (i == highestDim));
 			
 			h.reduce(adj);
 		}
 	}
 }
 
-int main(int argn, char** args)
+int main()
 {
-	if (argn == 1)
-	{
-		std::cerr << "Error: requires a nonnegative integer as an argument"
-			<< std::endl;
-		return 1;
-	}
-	
-	dims = atoi(args[1]);
-	
-	hypercube h(dims);
+	hypercube<MAX_DIM> h;
 	
 	h.induce(0);
 
