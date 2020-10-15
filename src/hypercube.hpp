@@ -26,7 +26,7 @@ struct hypercube
 	struct vertex
 	{
 		bool induced;
-		unsigned effectiveDegree;
+		uint8_t effectiveDegree;
 		
 		vertex() : induced(false), effectiveDegree(0) {}
 	};
