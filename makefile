@@ -36,7 +36,7 @@ obj/siab2_$(size).o: src/siab2.cpp $(HCUBE_FILES)
 obj/siab3_$(size).o: src/siab3.cpp $(PERMU_FILES) src/equivRelation.hpp
 obj/siab4_$(size).o: src/siab4.cpp $(HCUBE_FILES) $(PERMU_FILES)
 
-obj/siab%_$(size).o:
+obj/%_$(size).o:
 	$(CC) $(CFLAGS) $< -o $@ -c -D MAX_DIM=$(size)
 
 obj/%.o: src/%.cpp src/%.hpp
