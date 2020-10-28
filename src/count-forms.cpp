@@ -296,11 +296,14 @@ int main(int argn, char** args)
 	}
 	
 	// Print in graph-friendly format
+	unsigned long long total = 0;
 	for (unsigned nv = 0; nv < snakeClasses.size(); ++nv)
 	{
 		unsigned result = getSnakesOfSize(nv);
+		total += result;
 		if (result)
 			std::cout << '(' << nv << ",log(" << result << ")),";
 	}
-	std::cout << "\b \n";
+	std::cout << "\b \n\nTotal = " << total << std::endl;
+	std::cout << '(' << MAX_DIM << ",log(" << total << "))" << std::endl;
 }
