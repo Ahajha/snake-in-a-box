@@ -169,9 +169,10 @@ void emplaceSnake(const hypercube<MAX_DIM>& h, unsigned lastAddition, unsigned h
 	{
 		*iter = s;
 		
-		// Erase any other values that are larger than s
+		// Erase any other values that are larger than s.
+		// Use iter + 1, since we don't want to replace s.
 		snakeClass.erase(
-			std::remove_if(iter, snakeClass.end(), [&s](const snake& other)
+			std::remove_if(iter + 1, snakeClass.end(), [&s](const snake& other)
 			{
 				return s <= other;
 			}
