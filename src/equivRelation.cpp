@@ -316,8 +316,6 @@ std::size_t er_hash::operator()(const equivRelation& er) const
 	return hash;
 }
 
-er_storage::er_storage() : table(), ers() {}
-
 const equivRelation& er_storage::operator[](unsigned index) const
 {
 	return ers[index];

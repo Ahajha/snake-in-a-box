@@ -105,8 +105,6 @@ class er_storage
 {
 	public:
 	
-	er_storage();
-	
 	// Gets the ER at a given index.
 	const equivRelation& operator[](unsigned) const;
 	
