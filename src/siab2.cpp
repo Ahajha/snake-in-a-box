@@ -1,13 +1,11 @@
 /*
 This is another simple program to demonstrate a slightly less naive algorithm,
-where we use dimension strings to prune some symmetries present in the first
-naive approach.
+where we prune some symmetries present in the first naive approach.
 
-At each step, we keep track of a 'string' of dimensions. We are only allowed to
-move in a given dimension after moving in all previous ones at least once. Thus,
-we must also keep track of the maximum dimension already used.
+At each step, we keep track of the largest dimension used. We are only allowed to
+move in a given dimension after moving in all previous ones at least once.
 
-This is a bit better, d=6 finishes much more quickly, but is unable to finish 7.
+This is a bit better, d=6 finishes almost instantly, but is unable to finish 7.
 */
 
 #include <iostream>
@@ -26,8 +24,8 @@ void enumerate(hypercube<MAX_DIM>& h, unsigned lastAddition, unsigned highestDim
 		std::cout << h;
 	}
 	
-	// By the nature of the order of the vertices, index in the adjacency
-	// list is also the dimension number.
+	// The index in the adjacency list is also the dimension number, so
+	// capping the index gives the same result as capping dimension.
 	unsigned stop = std::min((unsigned)MAX_DIM,highestDim + 1);
 	for (unsigned i = 0; i < stop; i++)
 	{

@@ -1,9 +1,7 @@
 /*
-This is a hastily thrown together program to get a basic idea of how the
-naive algorithm performs.
-Inputs 1-5 finish essentially instantly (the result for 1 is not correct,
-though we don't really care here), 6 might finish eventually but would
-take a little bit, not sure how long exactly.
+This is a simple program to get a basic idea of how the naive algorithm
+performs. Inputs 1-5 finish essentially instantly, 6 finishes in about
+5 seconds, see no need to test any further with this algorithm.
 */
 
 #include <iostream>
