@@ -25,6 +25,7 @@ prototype of this program where the result was incorrect on N = 6 (only got to 2
 
 #include <array>
 #include <stack>
+#include <ctime>
 #include <vector>
 #include <iostream>
 #include <unordered_set>
@@ -256,6 +257,8 @@ int main(int argn, char** args)
 	const unsigned pruned = atoi(args[1]);
 	breakPoint = atoi(args[2]);
 	
+	auto start_time = clock();
+	
 	// Enumerate pruned first
 	hypercube<MAX_DIM> h;
 	h.induce(0);
@@ -294,6 +297,8 @@ int main(int argn, char** args)
 				std::cout << nv << ": " << result << std::endl;
 		}
 	}
+	
+	std::cout << "Finished in " << (float)(clock()-start_time)/(CLOCKS_PER_SEC) << " seconds\n";
 	
 	// Print in graph-friendly format
 	unsigned long long total = 0;
