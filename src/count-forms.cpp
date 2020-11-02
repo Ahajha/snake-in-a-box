@@ -27,6 +27,7 @@ prototype of this program where the result was incorrect on N = 6 (only got to 2
 #include <stack>
 #include <ctime>
 #include <vector>
+#include <bitset>
 #include <iostream>
 #include <unordered_set>
 #include "hypercube.hpp"
@@ -40,7 +41,7 @@ struct snake
 {
 	hypercube<MAX_DIM> _h;
 	
-	std::array<bool,numVertices> footprint;
+	std::bitset<numVertices> footprint;
 	
 	unsigned highestDim;
 	
@@ -52,7 +53,7 @@ struct snake
 		std::stack<unsigned> toBeSearched;
 		
 		// Start as true, set any vertices that can be reached to false.
-		footprint.fill(true);
+		footprint.set();
 		
 		for (unsigned adj : hypercube<MAX_DIM>::adjLists[lastAddition])
 		{
@@ -69,7 +70,7 @@ struct snake
 			
 			if (footprint[next])
 			{
-				footprint[next] = false;
+				footprint.reset(next);
 				
 				for (unsigned adj : hypercube<MAX_DIM>::adjLists[next])
 				{
@@ -85,57 +86,30 @@ struct snake
 	friend std::ostream& operator<<(std::ostream& stream, const snake& s)
 	{
 		stream << s._h;
-		for (bool f : s.footprint)
+		for (unsigned i = 0; i < numVertices; ++i)
 		{
-			stream << (f ? 'O' : '_') << ' ';
+			stream << (s.footprint[i] ? 'O' : '_') << ' ';
 		}
 		return stream << "| highest dim = " << s.highestDim;
 	}
 	
 	std::partial_ordering operator<=>(const snake& other) const
 	{
-		bool thisSmaller = true, otherSmaller = true;
+		bool thisSmaller  = (~footprint |= other.footprint).all();
+		bool otherSmaller = (~other.footprint |= footprint).all();
 		
-		for (unsigned i = 0; i < numVertices; ++i)
+		constexpr static std::partial_ordering results[] =
 		{
-			if (footprint[i] != other.footprint[i])
-			{
-				if (footprint[i])
-				{
-					thisSmaller = false;
-					
-					if (!otherSmaller)
-					{
-						return std::partial_ordering::unordered;
-					}
-				}
-				else // other.footprint[i]
-				{
-					otherSmaller = false;
-					
-					if (!thisSmaller)
-					{
-						return std::partial_ordering::unordered;
-					}
-				}
-			}
-		}
+			std::partial_ordering::unordered, // Index 0, both false
+			std::partial_ordering::less,      // Index 1, thisSmaller
+			std::partial_ordering::greater,   // Index 2, otherSmaller
+			std::partial_ordering::equivalent // Index 3, both true
+		};
 		
-		if (thisSmaller)
-		{
-			if (otherSmaller)
-			{
-				return std::partial_ordering::equivalent;
-			}
-			else
-			{
-				return std::partial_ordering::less;
-			}
-		}
-		else
-		{
-			return std::partial_ordering::greater;
-		}
+		// This calculation maps each pair of boolean values to a unique
+		// index, (0 to 3) then returns the result from there. This avoids
+		// branching, which could be slow.
+		return results[(unsigned)thisSmaller + (otherSmaller << 1)];
 	}
 };
 
