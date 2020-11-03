@@ -18,9 +18,6 @@ if X is not a subset of Y, and Y is not a subset of X, then F and G are unordere
 
 Forms are grouped by number of vertices and current endpoint. From there, remove
 any forms that have a smaller form, and keep only one copy of equivalent forms.
-
-Dimension may also need to be considered, there has been an instance of running a
-prototype of this program where the result was incorrect on N = 6 (only got to 26)
 */
 
 #include <array>
@@ -29,7 +26,6 @@ prototype of this program where the result was incorrect on N = 6 (only got to 2
 #include <vector>
 #include <bitset>
 #include <iostream>
-#include <unordered_set>
 #include "hypercube.hpp"
 #include "permutation.hpp"
 
