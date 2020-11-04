@@ -35,15 +35,15 @@ constexpr unsigned numVertices = 1 << MAX_DIM;
 
 struct snake
 {
-	hypercube<MAX_DIM> _h;
+	hypercube<MAX_DIM> h;
 	
 	std::bitset<numVertices> footprint;
 	
 	unsigned highestDim;
 	
 	// Looks at the current state of h to construct a snake.
-	snake(const hypercube<MAX_DIM>& h, unsigned lastAddition, unsigned highestDimension)
-		: _h(h), highestDim(highestDimension)
+	snake(const hypercube<MAX_DIM>& _h, unsigned lastAddition, unsigned highestDimension)
+		: h(_h), highestDim(highestDimension)
 	{
 		// DFS search
 		std::stack<unsigned> toBeSearched;
@@ -81,7 +81,7 @@ struct snake
 	
 	friend std::ostream& operator<<(std::ostream& stream, const snake& s)
 	{
-		stream << s._h;
+		stream << s.h;
 		for (unsigned i = 0; i < numVertices; ++i)
 		{
 			stream << (s.footprint[i] ? 'O' : '_') << ' ';
@@ -241,7 +241,7 @@ int main(int argn, char** args)
 		{
 			for (auto& s : snakeClasses[nv][endpoint])
 			{
-				enumerate(s._h, endpoint, s.highestDim);
+				enumerate(s.h, endpoint, s.highestDim);
 			}
 		}
 		
@@ -256,7 +256,7 @@ int main(int argn, char** args)
 		{
 			for (auto& s : snakeClasses[pruned][endpoint])
 			{
-				enumerateRecursive(s._h, endpoint, s.highestDim);
+				enumerateRecursive(s.h, endpoint, s.highestDim);
 			}
 		}
 		
