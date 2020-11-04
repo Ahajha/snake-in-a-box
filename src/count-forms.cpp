@@ -235,7 +235,7 @@ int main(int argn, char** args)
 	
 	emplaceSnake(h,0,0);
 	
-	for (unsigned nv = 0; nv < pruned && nv <= numVertices; ++nv)
+	for (unsigned nv = 1; nv < pruned && nv <= numVertices; ++nv)
 	{
 		for (unsigned endpoint = 0; endpoint < snakeClasses[nv].size(); ++endpoint)
 		{
