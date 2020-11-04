@@ -237,7 +237,7 @@ int main(int argn, char** args)
 	
 	for (unsigned nv = 1; nv < pruned && nv <= numVertices; ++nv)
 	{
-		for (unsigned endpoint = 0; endpoint < snakeClasses[nv].size(); ++endpoint)
+		for (unsigned endpoint = 0; endpoint < numVertices; ++endpoint)
 		{
 			for (auto& s : snakeClasses[nv][endpoint])
 			{
@@ -260,7 +260,7 @@ int main(int argn, char** args)
 			}
 		}
 		
-		for (unsigned nv = pruned; nv < snakeClasses.size(); ++nv)
+		for (unsigned nv = pruned; nv <= numVertices; ++nv)
 		{
 			unsigned result = getSnakesOfSize(nv);
 			if (result)
@@ -272,7 +272,7 @@ int main(int argn, char** args)
 	
 	// Print in graph-friendly format
 	unsigned long long total = 0;
-	for (unsigned nv = 0; nv < snakeClasses.size(); ++nv)
+	for (unsigned nv = 0; nv < numVertices; ++nv)
 	{
 		unsigned result = getSnakesOfSize(nv);
 		total += result;
