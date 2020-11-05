@@ -237,6 +237,8 @@ int main(int argn, char** args)
 	
 	for (unsigned nv = 1; nv < pruned && nv <= numVertices; ++nv)
 	{
+		std::cout << nv << "..." << std::flush;
+		
 		for (unsigned endpoint = 0; endpoint < numVertices; ++endpoint)
 		{
 			for (auto& s : snakeClasses[nv][endpoint])
@@ -245,13 +247,13 @@ int main(int argn, char** args)
 			}
 		}
 		
-		unsigned result = getSnakesOfSize(nv);
-		if (result)
-			std::cout << nv << ": " << result << std::endl;
+		std::cout << " done" << std::endl;
 	}
 	
 	if (pruned <= numVertices)
 	{
+		std::cout << "Enumerating rest..." << std::flush;
+		
 		for (unsigned endpoint = 0; endpoint < numVertices; ++endpoint)
 		{
 			for (auto& s : snakeClasses[pruned][endpoint])
@@ -260,15 +262,10 @@ int main(int argn, char** args)
 			}
 		}
 		
-		for (unsigned nv = pruned; nv <= numVertices; ++nv)
-		{
-			unsigned result = getSnakesOfSize(nv);
-			if (result)
-				std::cout << nv << ": " << result << std::endl;
-		}
+		std::cout << " done" << std::endl;
 	}
 	
-	std::cout << "Finished in " << (float)(clock()-start_time)/(CLOCKS_PER_SEC) << " seconds\n";
+	std::cout << "\nFinished in " << (float)(clock()-start_time)/(CLOCKS_PER_SEC) << " seconds\n\n";
 	
 	// Print in graph-friendly format
 	unsigned long long total = 0;
