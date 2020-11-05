@@ -93,8 +93,10 @@ struct snake
 	
 	std::partial_ordering operator<=>(const snake& other) const
 	{
-		bool thisSmaller  = (~footprint |= other.footprint).all();
-		bool otherSmaller = (~other.footprint |= footprint).all();
+		bool thisSmaller  = h.numInduced >= other.h.numInduced
+		                 && (~footprint |= other.footprint).all();
+		bool otherSmaller = other.h.numInduced >= h.numInduced
+		                 && (~other.footprint |= footprint).all();
 		
 		constexpr static std::partial_ordering results[] =
 		{
@@ -182,7 +184,7 @@ void emplaceSnake(const hypercube<MAX_DIM>& h, unsigned lastAddition, unsigned h
 				++iter;
 			}
 		}
-
+		
 		snakeClass.emplace(s);
 	}
 }
