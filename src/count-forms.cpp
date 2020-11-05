@@ -313,6 +313,5 @@ int main(int argn, char** args)
 		if (result)
 			std::cout << '(' << nv << ",log(" << result << ")),";
 	}
-	std::cout << "\b \n\nTotal = " << total << std::endl;
-	std::cout << '(' << MAX_DIM << ",log(" << total << "))" << std::endl;
+	std::cout << "\b \n\n(" << MAX_DIM << ",log(" << total << "))" << std::endl;
 }
