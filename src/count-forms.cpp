@@ -23,9 +23,9 @@ any forms that have a smaller form, and keep only one copy of equivalent forms.
 #include <array>
 #include <stack>
 #include <ctime>
-#include <vector>
 #include <bitset>
 #include <iostream>
+#include <unordered_set>
 #include "hypercube.hpp"
 #include "permutation.hpp"
 
@@ -35,7 +35,9 @@ constexpr unsigned numVertices = 1 << MAX_DIM;
 
 struct snake
 {
-	hypercube<MAX_DIM> h;
+	// Mutable, to allow this to be modified while in the set.
+	// This doesn't change the hash value.
+	mutable hypercube<MAX_DIM> h;
 	
 	std::bitset<numVertices> footprint;
 	
@@ -107,10 +109,36 @@ struct snake
 		// branching, which could be slow.
 		return results[(unsigned)thisSmaller + (otherSmaller << 1)];
 	}
+	
+	bool operator==(const snake& other) const
+	{
+		return h == other.h;
+	}
+};
+
+struct snake_hash
+{
+	std::size_t operator()(const snake& s) const
+	{
+		// This implementation is based off djb2, found at
+		// http://www.cse.yorku.ca/~oz/hash.html
+		
+		// This probably isn't the best hash function for this
+		// purpose, but it should be good enough.
+		
+		std::size_t hash = 5381;
+		
+		for (const auto& c : s.h.vertices)
+		{
+			hash = ((hash << 5) + hash) + c.induced; /* hash * 33 + c */
+		}
+		
+		return hash;
+	}
 };
 
 // First index is # of vertices, second is end vertex, last vector contains snakes.
-std::array<std::array<std::vector<snake>,numVertices>,numVertices + 1> snakeClasses;
+std::array<std::array<std::unordered_set<snake, snake_hash>,numVertices>,numVertices + 1> snakeClasses;
 
 void emplaceSnake(const hypercube<MAX_DIM>& h, unsigned lastAddition, unsigned highestDim)
 {
@@ -132,22 +160,30 @@ void emplaceSnake(const hypercube<MAX_DIM>& h, unsigned lastAddition, unsigned h
 	// If there is no such element, add s to the vector
 	if (iter == snakeClass.end())
 	{
-		snakeClass.emplace_back(s);
+		snakeClass.emplace(s);
 	}
 	
 	// If s is smaller than the given element, replace it
 	else if (result == std::partial_ordering::less)
 	{
-		*iter = s;
+		snakeClass.erase(iter++);
 		
 		// Erase any other values that are larger than s.
 		// Use iter + 1, since we don't want to replace s.
-		snakeClass.erase(
-			std::remove_if(iter + 1, snakeClass.end(), [&s](const snake& other)
+		
+		while (iter != snakeClass.end())
+		{
+			if (s <= *iter)
 			{
-				return s <= other;
+				snakeClass.erase(iter++);
 			}
-		), snakeClass.end());
+			else
+			{
+				++iter;
+			}
+		}
+
+		snakeClass.emplace(s);
 	}
 }
 
