@@ -219,8 +219,7 @@ int main(int argn, char** args)
 {
 	if (argn != 3)
 	{
-		std::cerr << "Error: requires 'pruned' and 'semipruned' as arguments"
-			<< std::endl;
+		std::cerr << "Error: requires 'pruned' and 'semipruned' as arguments\n";
 		return 1;
 	}
 	
