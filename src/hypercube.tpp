@@ -43,6 +43,19 @@ void hypercube<N>::reduce(unsigned i)
 }
 
 template<unsigned N>
+bool hypercube<N>::operator==(const hypercube& other) const
+{
+	for (unsigned i = 0; i < numVertices; ++i)
+	{
+		if (vertices[i].induced != other.vertices[i].induced)
+		{
+			return false;
+		}
+	}
+	return true;
+}
+
+template<unsigned N>
 std::ostream& operator<<(std::ostream& stream, const hypercube<N>& h)
 {
 	for (const auto& v : h.vertices)

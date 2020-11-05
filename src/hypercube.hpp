@@ -40,6 +40,8 @@ struct hypercube
 	void induce(unsigned);
 	void reduce(unsigned);
 	
+	bool operator==(const hypercube& other) const;
+	
 	// Prints which vertices are induced as Xs, and those that are not
 	// as _s, all on one line.
 	template<unsigned M>
