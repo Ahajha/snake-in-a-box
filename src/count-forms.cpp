@@ -142,9 +142,41 @@ struct snake_hash
 // First index is # of vertices, second is end vertex, last vector contains snakes.
 std::array<std::array<std::unordered_set<snake, snake_hash>,numVertices>,numVertices + 1> snakeClasses;
 
+// Recursively removes a snake and any of its children from snakeClasses.
+void eraseRecursive(auto iter, unsigned lastAddition)
+{
+	// Do the recursive deletes
+	const unsigned stop = std::min((unsigned)MAX_DIM,iter->highestDim + 1);
+	for (unsigned i = 0; i < stop; ++i)
+	{
+		unsigned adj = hypercube<MAX_DIM>::adjLists[lastAddition][i];
+		
+		// We need to check that the neighbor isn't induced specifically
+		// for the case of the starting vertex's first expansion.
+		if (iter->vertices[adj].effectiveDegree == 1 && !iter->vertices[adj].induced)
+		{
+			iter->induce(adj);
+			
+			// Lookup h, if it exists, then do a recursive call.
+			
+			auto& snakeClass = snakeClasses[iter->numInduced][adj];
+			
+			if (auto search = snakeClass.find(*iter); search != snakeClass.end())
+			{
+				eraseRecursive(search);
+			}
+			
+			iter->reduce(adj);
+		}
+	}
+	
+	// Then erase the item
+	snakeClasses[iter->numInduced][lastAddition].erase(iter);
+}
+
 void emplaceSnake(const hypercube<MAX_DIM>& h, unsigned lastAddition, unsigned highestDim)
 {
-	snake s(h,lastAddition, highestDim);
+	snake s(h, lastAddition, highestDim);
 	
 	auto& snakeClass = snakeClasses[h.numInduced][lastAddition];
 	
@@ -171,8 +203,6 @@ void emplaceSnake(const hypercube<MAX_DIM>& h, unsigned lastAddition, unsigned h
 		snakeClass.erase(iter++);
 		
 		// Erase any other values that are larger than s.
-		// Use iter + 1, since we don't want to replace s.
-		
 		while (iter != snakeClass.end())
 		{
 			if (s <= *iter)
