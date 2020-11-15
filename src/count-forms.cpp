@@ -36,7 +36,8 @@ constexpr unsigned numVertices = 1 << MAX_DIM;
 struct snake
 {
 	// Mutable, to allow this to be modified while in the set.
-	// This doesn't change the hash value.
+	// The hash value is only dependent on h, so it can
+	// 'pretend' to be another snake temporarily.
 	mutable hypercube<MAX_DIM> h;
 	
 	std::bitset<numVertices> footprint;
@@ -143,80 +144,119 @@ struct snake_hash
 std::array<std::array<std::unordered_set<snake, snake_hash>,numVertices>,numVertices + 1> snakeClasses;
 
 // Recursively removes a snake and any of its children from snakeClasses.
-void eraseRecursive(auto iter, unsigned lastAddition)
+void eraseRecursive(std::unordered_set<snake, snake_hash>::iterator iter, unsigned lastAddition, unsigned highestDim)
 {
 	// Do the recursive deletes
-	const unsigned stop = std::min((unsigned)MAX_DIM,iter->highestDim + 1);
+	const unsigned stop = std::min((unsigned)MAX_DIM,highestDim + 1);
 	for (unsigned i = 0; i < stop; ++i)
 	{
 		unsigned adj = hypercube<MAX_DIM>::adjLists[lastAddition][i];
 		
 		// We need to check that the neighbor isn't induced specifically
 		// for the case of the starting vertex's first expansion.
-		if (iter->vertices[adj].effectiveDegree == 1 && !iter->vertices[adj].induced)
+		if (iter->h.vertices[adj].effectiveDegree == 1 && !iter->h.vertices[adj].induced)
 		{
-			iter->induce(adj);
+			iter->h.induce(adj);
 			
 			// Lookup h, if it exists, then do a recursive call.
-			
-			auto& snakeClass = snakeClasses[iter->numInduced][adj];
+			auto& snakeClass = snakeClasses[iter->h.numInduced][adj];
 			
 			if (auto search = snakeClass.find(*iter); search != snakeClass.end())
 			{
-				eraseRecursive(search);
+				eraseRecursive(search, adj, highestDim + (i == highestDim));
 			}
 			
-			iter->reduce(adj);
+			iter->h.reduce(adj);
 		}
 	}
 	
 	// Then erase the item
-	snakeClasses[iter->numInduced][lastAddition].erase(iter);
+	snakeClasses[iter->h.numInduced][lastAddition].erase(iter);
 }
 
 void emplaceSnake(const hypercube<MAX_DIM>& h, unsigned lastAddition, unsigned highestDim)
 {
 	snake s(h, lastAddition, highestDim);
 	
-	auto& snakeClass = snakeClasses[h.numInduced][lastAddition];
-	
 	// Find the first element that does not compare unordered to s.
 	// Default value needed due to no default constructor.
 	std::partial_ordering result = std::partial_ordering::unordered;
 	
-	auto iter = std::find_if(snakeClass.begin(), snakeClass.end(),
-		[&result, &s](const snake& other)
-		{
-			return (result = s <=> other) != std::partial_ordering::unordered;
-		}
-	);
-	
-	// If there is no such element, add s to the vector
-	if (iter == snakeClass.end())
+	// Loop through each size
+	for (unsigned nv = 1; nv <= h.numInduced; ++nv)
 	{
-		snakeClass.emplace(s);
+		auto& snakeClass = snakeClasses[nv][lastAddition];
+		
+		// Find the first snake in this class that doesn't compare unordered to s.
+		auto iter = std::find_if(snakeClass.begin(), snakeClass.end(),
+			[&result, &s](const snake& other)
+			{
+				return (result = s <=> other) != std::partial_ordering::unordered;
+			}
+		);
+		
+		// If such an element exists, do something based on the comparison
+		if (iter != snakeClass.end())
+		{
+			if (result == std::partial_ordering::less)
+			{
+				// If s is smaller than the given element, recursively erase the element
+				{
+					auto element = iter++;
+					eraseRecursive(element, lastAddition, element->highestDim);
+				}
+				
+				// Then continue scanning for any other snakes larger than s.
+				while (iter != snakeClass.end())
+				{
+					if (s <= *iter)
+					{
+						auto element = iter++;
+						eraseRecursive(element, lastAddition, element->highestDim);
+					}
+					else
+					{
+						++iter;
+					}
+				}
+				
+				// Remove any other smaller item that may be larger than s.
+				// Increase nv initially, since the current amount has already had pruning.
+				while(++nv <= h.numInduced)
+				{
+					auto& snakeClass2 = snakeClasses[nv][lastAddition];
+					
+					for (auto iter2 = snakeClass2.begin(); iter2 != snakeClass2.end();)
+					{
+						if (s <= *iter2)
+						{
+							auto element = iter2++;
+							eraseRecursive(element, lastAddition, element->highestDim);
+						}
+						else
+						{
+							++iter2;
+						}
+					}
+				}
+				
+				// Only add this after all erasing has been done, since s <= s and thus would
+				// get erased.
+				snakeClasses[h.numInduced][lastAddition].emplace(s);
+				
+				return;
+			}
+			
+			// Otherwise, s is greater than or equal to another item, so we can
+			// simply discard s.
+			else return;
+		}
+		
+		// If all compare unordered, keep searching
 	}
 	
-	// If s is smaller than the given element, replace it
-	else if (result == std::partial_ordering::less)
-	{
-		snakeClass.erase(iter++);
-		
-		// Erase any other values that are larger than s.
-		while (iter != snakeClass.end())
-		{
-			if (s <= *iter)
-			{
-				snakeClass.erase(iter++);
-			}
-			else
-			{
-				++iter;
-			}
-		}
-		
-		snakeClass.emplace(s);
-	}
+	// If all other snakes with the same endpoint compare unordered, then keep s.
+	snakeClasses[h.numInduced][lastAddition].emplace(s);
 }
 
 std::array<unsigned long long, numVertices + 1> sizeCounts;
