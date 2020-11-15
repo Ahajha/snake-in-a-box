@@ -1,5 +1,15 @@
 This data is from running count-forms on various inputs. It is formatted to be easily insertable into a scatterplot visualizer, such as Desmos.com.
 
+Improved pruning:
+
+(dimensions 0-4 unchanged)
+
+Dimension 5/6:
+
+(1,log(1)),(2,log(1)),(3,log(1)),(4,log(1)),(5,log(2)),(6,log(4)),(7,log(11)),(8,log(16)),(9,log(20)),(10,log(20)),(11,log(16)),(12,log(14)),(13,log(7)),(14,log(2))
+
+(1,log(1)),(2,log(1)),(3,log(1)),(4,log(1)),(5,log(2)),(6,log(4)),(7,log(12)),(8,log(33)),(9,log(116)),(10,log(322)),(11,log(883)),(12,log(1804)),(13,log(3596)),(14,log(5539)),(15,log(7736)),(16,log(8153)),(17,log(7503)),(18,log(5452)),(19,log(3506)),(20,log(1969)),(21,log(974)),(22,log(451)),(23,log(207)),(24,log(69)),(25,log(35)),(26,log(17)),(27,log(1))
+
 Full pruning:
 
 (1,log(1))
@@ -34,6 +44,10 @@ No pruning:
 
 Total counts for each form:
 
+Improved pruning:
+
+(0,log(1)),(1,log(2)),(2,log(3)),(3,log(5)),(4,log(11)),(5,log(116)),(6,log(48388))
+
 Full pruning:
 
 (0,log(1)),(1,log(2)),(2,log(3)),(3,log(5)),(4,log(11)),(5,log(123)),(6,log(48846))
@@ -56,8 +70,14 @@ Dimension 7, pruned = 13, semipruned = 22:
 
 (7,log(2338322112))
 
-Dimension 7, pruned = 16, semipruned = 22:
+Dimension 7, pruned = 16, semipruned = 22: (with original pruning, takes too long to run with improved)
 
 (1,log(1)),(2,log(1)),(3,log(1)),(4,log(1)),(5,log(2)),(6,log(4)),(7,log(12)),(8,log(34)),(9,log(131)),(10,log(483)),(11,log(2043)),(12,log(8139)),(13,log(33392)),(14,log(123434)),(15,log(462682)),(16,log(1546127)),(17,log(5560142)),(18,log(18021693)),(19,log(58676838)),(20,log(171610430)),(21,log(505011865)),(22,log(1326731070))
 
 (7,log(2087788525))
+
+Dimension 7, pruned = 15, semipruned = 22: (does not change with improved pruning)
+
+(1,log(1)),(2,log(1)),(3,log(1)),(4,log(1)),(5,log(2)),(6,log(4)),(7,log(12)),(8,log(34)),(9,log(131)),(10,log(483)),(11,log(2043)),(12,log(8139)),(13,log(33392)),(14,log(123434)),(15,log(462682)),(16,log(1644723)),(17,log(5880375)),(18,log(18970556)),(19,log(61856470)),(20,log(180990730)),(21,log(533506230)),(22,log(1402090415))
+
+(7,log(2205569859))
